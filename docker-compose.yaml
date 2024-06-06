@@ -1,0 +1,37 @@
+services:
+  nginx:
+    image: nginx:1.21.3
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./logs:/var/log/nginx
+    depends_on:
+      - odoo
+
+  odoo:
+    image: odoo:17.0
+    container_name: odoo
+    depends_on:
+      - db
+    restart: unless-stopped
+    ports:
+      - "8069:8069"
+    volumes:
+      - ./extra-addons:/home/ubuntu/extra-addons
+      - ./etc:/home/ubuntu/etc:ro
+
+  db:
+    image: postgres:16.0
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - POSTGRES_DB=postgres
+    volumes:
+      - datademo:/var/lib/data
+
+volumes:
+  datademo:
